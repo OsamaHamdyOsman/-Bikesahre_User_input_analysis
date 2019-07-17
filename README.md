@@ -8,7 +8,7 @@ This project is my very first exposure to the kinds of steps that a data analyst
 ## Datasets
 
 The data comprises three csv files:
-    1. [Washington data](..\washington.csv) 
-    2. [Chicago data](..\chicago.csv)
-    3. [NYC data](..\new_york_city.csv)
+    1. [Washington data](./washington.csv) 
+    2. [Chicago data](./chicago.csv)
+    3. [NYC data](./new_york_city.csv)
     
