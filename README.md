@@ -10,7 +10,7 @@ To complete this project, the following software requirements apply:
 * A text editor, like Sublime or Atom.
 * A terminal application (Terminal on Mac and Linux or Cygwin on Windows).
 
-<img scr='divvy.jpg' width='500'>
+<img scr='./divvy.jpg' width='500'>
 
 # Project Details
 
