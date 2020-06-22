@@ -18,11 +18,11 @@ def get_filters():
     print('Hello! Let\'s explore some US bikeshare data!')
     # get user input for city (chicago, new york city, washington). HINT: Use a while loop to handle invalid inputs
 
-    city_selection = input('To view the available bikeshare data, type:\n (a) for Chicago\n (b) for New York City\n (c) for Washington:\n  ').lower()
+    city_selection = input('To view the available bikeshare data, type:\n (a) for Chicago\n (b) for New York City\n (c) for Washington\n  ').lower()
 
     while city_selection not in {'a','b','c'}:
         print('That\'s invalid input.')
-        city_selection = input('To view the available bikeshare data, type:\n (a) for Chicago\n (b) for New York City\n (c) for Washington:\n  ').lower()
+        city_selection = input('To view the available bikeshare data, type:\n (a) for Chicago\n (b) for New York City\n (c) for Washington\n  ').lower()
 
     if city_selection == "a":
         city = 'chicago'
@@ -34,9 +34,14 @@ def get_filters():
     # get user input for month (all, january, february, ... , june)
     time_frame = input('\n\nWould you like to filter {}\'s data by month, day, both, or not at all? type month or day or both or none: \n'.format(city.title())).lower()
 
+    # validate the user input is as intended.
     while time_frame not in {'none', 'both','month','day'}:
         print('That\'s not a valid choice')
         time_frame = input('\n\nWould you like to filter {}\'s data by month, day, both, or not at all? type month or day or both or none: \n\n'.format(city.title())).lower()
+
+    # Building lists for the possible values for months and days.
+    months = ['january', 'february', 'march', 'april', 'may', 'june']
+    days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
 
     if time_frame == 'none':
         print('\nFiltering for {} for the 6 months period\n\n'.format(city.title()))
@@ -45,20 +50,20 @@ def get_filters():
 
     elif time_frame == 'both':
         month_selection = input('which month? Please type out (January / February / March / April / May / June)\n').lower()
-        while month_selection not in ['january', 'february', 'march', 'april', 'may', 'june']:
+        while month_selection not in months:
             print('Invalid month choice!!')
             month_selection = input('which month? Please type out (January / February / March / April / May / June)\n').lower()
         month = month_selection
 
         day_selection = input('Which day? Please type a day: Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday.\n').lower()
-        while day_selection not in ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']:
+        while day_selection not in days:
             print('Invalid day choice!!')
             day_selection = input('Which day? Please type a day: Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday.\n').lower()
         day = day_selection
 
     elif time_frame == 'month':
         month_selection = input('which month? Please type out (January / February / March / April / May / June)\n').lower()
-        while month_selection not in ['january', 'february', 'march', 'april', 'may', 'june']:
+        while month_selection not in months:
             print('Invalid month choice!!')
             month_selection = input('which month? Please type out (January / February / March / April / May / June)\n').lower()
         month = month_selection
@@ -66,7 +71,7 @@ def get_filters():
 
     elif time_frame == 'day':
         day_selection = input('Which day? Please type a day: Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday.\n').lower()
-        while day_selection not in ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']:
+        while day_selection not in days:
             print('Invalid day choice!!')
             day_selection = input('Which day? Please type a day: Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday.\n').lower()
         month = 'all'
@@ -97,7 +102,7 @@ def load_data(city, month, day):
 
     # extract month and day of week from Start Time to create new columns
     df['month'] = df['Start Time'].dt.month
-    df['day_of_week'] = df['Start Time'].dt.weekday_name
+    df['day_of_week'] = df['Start Time'].dt.day_name()
     # filter by month if applicable
     if month != 'all':
         # use the index of the months list to get the corresponding int
@@ -162,7 +167,7 @@ def station_stats(df):
     print('\nMost commonly used end station: ', popular_end_station)
 
     # display most frequent combination of start station and end station trip
-    most_frequent_route = df.groupby(['Start Station', 'End Station']).size().reset_index(name='count').sort_values('count',ascending=False).head(1)
+    most_frequent_route = df.groupby(['Start Station', 'End Station']).size().reset_index(name='count').sort_values('count',ascending=False).head(1).reset_index()[['Start Station', 'End Station', 'count']]
     print('\nMost frequent combination of start station and end station trip:\n ',most_frequent_route)
 
     print("\nThis took %s seconds." % (time.time() - start_time))
@@ -183,6 +188,7 @@ def trip_duration_stats(df):
 
     # display total travel time
     seconds_total = df['Trip Duration'].sum()
+
     #Calculate the days, hours, minutes and seconds
     days = seconds_total / SECONDS_PER_DAY
     seconds_total = seconds_total % SECONDS_PER_DAY
@@ -222,12 +228,12 @@ def user_stats(df):
     start_time = time.time()
 
     # Display counts of user types
-    user_count = df['User Type'].value_counts()
+    user_count = df['User Type'].value_counts().to_frame()
     print('\nUser types:\n',user_count  )
 
     try:
         # Display counts of gender
-        gender_count = df['Gender'].value_counts()
+        gender_count = df['Gender'].value_counts().to_frame()
         print('\nBike riders gender split: \n', gender_count)
 
         # Display earliest, most recent, and most common year of birth
@@ -246,6 +252,24 @@ def user_stats(df):
 
 user_stats(df)
 
+def display_raw_data(city):
+    print('\nRaw data is available to check... \n')
+    display_raw = input('To View the availbale raw data in chuncks of 5 rows type: Yes \n').lower()
+    while display_raw == 'yes':
+        try:
+            for chunk in pd.read_csv(CITY_DATA[city], index_col = 0 ,chunksize=5):
+                print(chunk)
+                display_raw = input('To View the availbale raw in chuncks of 5 rows type: Yes\n').lower()
+                if display_raw != 'yes':
+                    print('Thank You')
+                    break
+            break
+
+        except KeyboardInterrupt:
+            print('Thank you.')
+
+display_raw_data(city)
+
 def main():
     while True:
         restart = input('\nWould you like to restart? Enter yes or no.\n')
@@ -259,6 +283,7 @@ def main():
         station_stats(df)
         trip_duration_stats(df)
         user_stats(df)
+        display_raw_data(city)
 
 if __name__ == "__main__":
-	main()
+    main()
