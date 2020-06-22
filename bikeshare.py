@@ -253,6 +253,10 @@ def user_stats(df):
 user_stats(df)
 
 def display_raw_data(city):
+    """The fuction takes the name of the city produced by the get_filters fuction as input and
+    returns the raw data of that city as chunks of 5 rows based upon user input.
+    """
+
     print('\nRaw data is available to check... \n')
     display_raw = input('To View the availbale raw data in chuncks of 5 rows type: Yes \n').lower()
     while display_raw == 'yes':
